@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, flash
 import requests
+import os
 
 # Importar la función get_access_token desde KEY.py
 from KEY import get_access_token
@@ -56,4 +57,5 @@ def artist_detail(artist_id):
     return render_template('artist_detail.html', artist=artist, albums=albums)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
