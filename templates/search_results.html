@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="results-container">
+        <h2>Search Results</h2>
+        <ul class="results-list">
+            {% for artist in artists %}
+                <li class="result-item">
+                    <a href="{{ url_for('artist_detail', artist_id=artist['id']) }}">
+                        {% if artist['images'] %}
+                            <img src="{{ artist['images'][0]['url'] }}" alt="{{ artist['name'] }}" class="result-image">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='default-artist.png') }}" alt="{{ artist['name'] }}" class="result-image">
+                        {% endif %}
+                        <span class="result-name">{{ artist['name'] }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

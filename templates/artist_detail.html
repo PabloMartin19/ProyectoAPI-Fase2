@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="artist-detail-container">
+        <h2>{{ artist['name'] | upper }}</h2>
+        {% if artist['images'] %}
+            <img src="{{ artist['images'][0]['url'] }}" alt="{{ artist['name'] }}" class="artist-image">
+        {% else %}
+            <img src="{{ url_for('static', filename='images/default-artist.png') }}" alt="{{ artist['name'] }}" class="artist-image">
+        {% endif %}
+        <p>Followers: {{ artist['followers']['total'] }}</p>
+        <p>Genres: {{ artist['genres'] | join(', ') }}</p>
+        <h3>Popular</h3>
+        <ul class="albums-list">
+            {% for album in albums %}
+                <li class="album-item">
+                    <a href="{{ album['external_urls']['spotify'] }}" target="_blank">
+                        {% if album['images'] %}
+                            <img src="{{ album['images'][0]['url'] }}" alt="{{ album['name'] }}" class="album-image">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default-album.png') }}" alt="{{ album['name'] }}" class="album-image">
+                        {% endif %}
+                        <span class="album-name">{{ album['name'] }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+
+
+
