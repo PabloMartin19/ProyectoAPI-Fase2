@@ -1,40 +1,74 @@
 from flask import Flask, render_template, request, flash
 import requests
 import os
+from requests.auth import HTTPBasicAuth
 
-# Importar la función get_access_token desde KEY.py
-from KEY import get_access_token
-from flash_key import generate_secret_key
-
-app = Flask(__name__)
-app.secret_key = generate_secret_key()
+def get_access_token():
+    client_id = os.getenv('SPOTIFY_CLIENT_ID')
+    client_secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+    if not client_id or not client_secret:
+        print("Las credenciales no están disponibles")
+        return None
+    url = 'https://accounts.spotify.com/api/token'
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    data = {
+        'grant_type': 'client_credentials'
+    }
+    response = requests.post(url, headers=headers, data=data, auth=HTTPBasicAuth(client_id, client_secret))
+    if response.status_code != 200:
+        print(f"Error en la petición: {response.status_code}")
+        print(response.json())
+        return None
+    response_data = response.json()
+    access_token = response_data.get('access_token')
+    return access_token
 
 def search_artists(query):
     token = get_access_token()
+    if not token:
+        return []
     url = f'https://api.spotify.com/v1/search?q={query}&type=artist'
     headers = {
         'Authorization': f'Bearer {token}'
     }
     response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        print(f"Error en la búsqueda de artistas: {response.json()}")
+        return []
     return response.json()['artists']['items']
 
 def get_artist_info(artist_id):
     token = get_access_token()
+    if not token:
+        return {}
     url = f'https://api.spotify.com/v1/artists/{artist_id}'
     headers = {
         'Authorization': f'Bearer {token}'
     }
     response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        print(f"Error obteniendo información del artista: {response.json()}")
+        return {}
     return response.json()
 
 def get_artist_albums(artist_id):
     token = get_access_token()
+    if not token:
+        return []
     url = f'https://api.spotify.com/v1/artists/{artist_id}/albums'
     headers = {
         'Authorization': f'Bearer {token}'
     }
     response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        print(f"Error obteniendo álbumes del artista: {response.json()}")
+        return []
     return response.json()['items']
+
+app = Flask(__name__)
+app.secret_key = os.urandom(24)  # Genera una clave secreta aleatoria
 
 @app.route('/')
 def index():
